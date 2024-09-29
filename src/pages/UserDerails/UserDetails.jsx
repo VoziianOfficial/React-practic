@@ -1,9 +1,22 @@
-import { useEffect, useState } from "react";
-import { NavLink, Outlet, useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useParams,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import { fetchUserById } from "../../services/api";
+import { Suspense } from "react";
 
 const UserDetails = () => {
   const { userId } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  console.log(location);
+
+  const goBackRef = useRef(location.state);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -17,6 +30,8 @@ const UserDetails = () => {
   if (!user) return <h2>Loading...</h2>;
   return (
     <div>
+      <button onClick={() => navigate(-1)}>Go back</button>
+      <Link to={goBackRef.current ?? "/users"}>Home</Link>
       <img src={user.image} alt={`${user.firstName} ${user.lastName}`} />
       <h2>
         {user.lastName} {user.firstName}
@@ -28,7 +43,9 @@ const UserDetails = () => {
         <NavLink to="info">Info</NavLink>
         <NavLink to="posts">Posts</NavLink>
       </div>
-      <Outlet />
+      <Suspense fallback={<h2>Second suspense</h2>}>
+        <Outlet />
+      </Suspense>
     </div>
   );
 };
